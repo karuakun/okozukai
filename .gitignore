@@ -1,0 +1,33 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+TestResults/
+publish/
+
+## dotnet secrets
+**/appsettings.*.json
+!**/appsettings.json
+!**/appsettings.Development.json
+
+## 環境変数・シークレット
+.env
+.env.local
+*.pfx
+*.p12
+
+## Blazor WASM
+wwwroot/service-worker-assets.js
+
+## CLI トークンキャッシュ（ローカルのみ）
+~/.okozukai/
+
+## OS
+.DS_Store
+Thumbs.db
+
+## IDE
+.idea/
+*.swp

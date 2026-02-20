@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>okozukai</AssemblyName>
+    <!-- dotnet tool として配布可能 -->
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>okozukai</ToolCommandName>
+    <PackageId>Okozukai.Cli</PackageId>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Okozukai.Core\Okozukai.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- CLIフレームワーク -->
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <!-- OIDC Device Flow（CLIからの認証）またはPAT -->
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.67.2" />
+    <!-- テーブル出力 -->
+    <PackageReference Include="Spectre.Console" Version="0.49.1" />
+  </ItemGroup>
+
+</Project>

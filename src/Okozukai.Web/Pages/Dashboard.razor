@@ -1,0 +1,97 @@
+@page "/"
+@page "/dashboard"
+@attribute [Authorize]
+@inject TransactionStateService TxState
+@inject NavigationManager Nav
+@implements IDisposable
+
+<PageTitle>ダッシュボード - おこづかい帳</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-4">
+    @_selectedYear年@_selectedMonth月
+</MudText>
+
+@if (TxState.IsLoading)
+{
+    <MudProgressLinear Indeterminate="true" />
+}
+else if (TxState.Summary is { } summary)
+{
+    <!-- 月次サマリカード -->
+    <MudGrid Class="mb-4">
+        <MudItem xs="12" sm="4">
+            <MudPaper Class="pa-4">
+                <MudText Typo="Typo.caption">収入</MudText>
+                <MudText Typo="Typo.h5" Color="Color.Success">
+                    @summary.TotalIncome.ToString("C0")
+                </MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudPaper Class="pa-4">
+                <MudText Typo="Typo.caption">支出</MudText>
+                <MudText Typo="Typo.h5" Color="Color.Error">
+                    @Math.Abs(summary.TotalExpense).ToString("C0")
+                </MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudPaper Class="pa-4">
+                <MudText Typo="Typo.caption">残高</MudText>
+                <MudText Typo="Typo.h5"
+                         Color="@(summary.Balance >= 0 ? Color.Primary : Color.Error)">
+                    @summary.Balance.ToString("C0")
+                </MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+    <!-- 直近トランザクション -->
+    <MudText Typo="Typo.h6" Class="mb-2">収支一覧</MudText>
+    <MudTable Items="TxState.Transactions" Dense="true" Hover="true">
+        <HeaderContent>
+            <MudTh>日付</MudTh>
+            <MudTh>カテゴリ</MudTh>
+            <MudTh>説明</MudTh>
+            <MudTh Style="text-align:right">金額</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Date.ToString("MM/dd")</MudTd>
+            <MudTd>@context.CategoryIcon @context.CategoryName</MudTd>
+            <MudTd>@context.Description</MudTd>
+            <MudTd Style="text-align:right"
+                   Class="@(context.Amount >= 0 ? "mud-success-text" : "mud-error-text")">
+                @context.Amount.ToString("C0")
+            </MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
+                               OnClick="@(() => Nav.NavigateTo($"/transactions/{context.Id}/edit"))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"
+                               OnClick="@(() => DeleteAsync(context.Id))" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+<MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
+        Style="position:fixed;bottom:24px;right:24px"
+        OnClick="@(() => Nav.NavigateTo("/transactions/new"))" />
+
+@code {
+    private int _selectedYear  = DateTime.Now.Year;
+    private int _selectedMonth = DateTime.Now.Month;
+
+    protected override async Task OnInitializedAsync()
+    {
+        TxState.OnChange += StateHasChanged;
+        await TxState.LoadAsync(_selectedYear, _selectedMonth);
+    }
+
+    private async Task DeleteAsync(int id)
+    {
+        await TxState.DeleteAsync(id);
+    }
+
+    public void Dispose() => TxState.OnChange -= StateHasChanged;
+}
